@@ -6,10 +6,11 @@ from datetime import datetime as dt
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir,'university.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'university.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'beyond_course_scope'
 db.init_app(app)
+
 
 @app.route('/student/view')
 def student_view_all():
@@ -18,6 +19,8 @@ def student_view_all():
         .order_by(Student.last_name, Student.first_name) \
         .all()
     return render_template('student_view_all.html', students=students)
+
+
 @app.route('/student/view/<int:student_id>')
 def student_view(student_id):
     student = Student.query.filter_by(student_id=student_id).first()
@@ -26,12 +29,12 @@ def student_view(student_id):
         .all()
 
     if student:
-        return render_template('student_entry.html', student=student,
-majors=majors, action='read')
+        return render_template('student_entry.html', student=student, majors=majors, action='read')
 
     else:
         flash(f'Student attempting to be viewed could not be found!', 'error')
         return redirect(url_for('student_view_all'))
+
 @app.route('/student/create', methods=['GET', 'POST'])
 def student_create():
     if request.method == 'GET':
@@ -43,7 +46,6 @@ def student_create():
         first_name = request.form['first_name']
         last_name = request.form['last_name']
         major_id = request.form['major_id']
-
         birth_date = request.form['birth_date']
         email = request.form['email']
         is_honors = True if 'is_honors' in request.form else False
@@ -57,6 +59,8 @@ def student_create():
 
     flash('Invalid action. Please try again.', 'error')
     return redirect(url_for('student_view_all'))
+
+
 @app.route('/student/update/<int:student_id>', methods=['GET', 'POST'])
 def student_edit(student_id):
     if request.method == 'GET':
@@ -64,12 +68,16 @@ def student_edit(student_id):
         majors = Major.query.order_by(Major.major) \
             .order_by(Major.major) \
             .all()
+
         if student:
             return render_template('student_entry.html', student=student, majors=majors, action='update')
+
         else:
             flash(f'Student attempting to be edited could not be found!', 'error')
+
     elif request.method == 'POST':
         student = Student.query.filter_by(student_id=student_id).first()
+
         if student:
             student.first_name = request.form['first_name']
             student.last_name = request.form['last_name']
@@ -86,10 +94,13 @@ def student_edit(student_id):
             flash(f'Student attempting to be edited could not be found!', 'error')
 
         return redirect(url_for('student_view_all'))
+
     return redirect(url_for('student_view_all'))
+
 @app.route('/student/delete/<int:student_id>')
 def student_delete(student_id):
     student = Student.query.filter_by(student_id=student_id).first()
+
     if student:
         db.session.delete(student)
         db.session.commit()
@@ -98,16 +109,19 @@ def student_delete(student_id):
         flash(f'Delete failed! Student could not be found.', 'error')
 
     return redirect(url_for('student_view_all'))
+
+
 @app.route('/')
 def home():
     return redirect(url_for('student_view_all'))
+
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
 
-# Execute only once! Initial loading of available majors
-"""
+        # Execute only once! Initial loading of available majors
+        """ 
         majors = ['Accounting', 'Finance', 'Information Systems', 'International Business', 'Management', \
                     'Operations Management & Business Analytics', 'Supply Chain Management']
         for each_major in majors:
@@ -115,5 +129,6 @@ if __name__ == '__main__':
             amajor = Major(major=each_major)
             db.session.add(amajor)
             db.session.commit()
-"""
-app.run()
+        """
+    app.run()
+
