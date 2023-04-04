@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from models import db, Student, Major
 from datetime import datetime as dt
 
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
